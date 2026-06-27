@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PokePop</title>
+  <script type="module" src="./main.js" defer></script>
+</head>
+<body>
+  <!-- 属性选择器模态框 -->
+  <div id="typePickerModal" class="modal-overlay" style="display: none;">
+    <div class="type-picker-panel">
+      <div class="type-picker-header">
+        <span class="type-picker-title">选择属性</span>
+        <button id="closeTypePicker" class="modal-close-btn" tabindex="-1">
+          <svg><use xlink:href="./icons/sprites.svg#icon-close"></use></svg>
+        </button>
+      </div>
+      <div class="type-picker-body">
+        <div class="type-picker-grid" id="typePickerGrid"></div>
+        <div class="type-picker-hint" id="typePickerHint">点击选择第 1 个属性</div>
+        <div class="type-picker-actions">
+          <button id="typePickerClear" class="picker-btn picker-btn-clear">清除</button>
+          <button id="typePickerConfirm" class="picker-btn picker-btn-confirm">确定</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glass-container">
+    <!-- 标题栏 -->
+    <div class="title-bar" data-tauri-drag-region>
+      <div class="app-title">PokePop</div>
+      <div class="window-controls">
+        <button class="control-btn btn-typesearch" aria-label="按属性查" title="按属性查">
+          <svg><use xlink:href="./icons/sprites.svg#icon-book"></use></svg>
+        </button>
+        <button class="control-btn type-chart-toggle" aria-label="属性克制表" title="属性克制表">
+          <svg><use xlink:href="./icons/sprites.svg#icon-type-chart"></use></svg>
+        </button>
+        <button class="control-btn window-pin" aria-label="固定窗口" title="固定窗口">
+          <svg><use xlink:href="./icons/sprites.svg#icon-pin"></use></svg>
+        </button>
+        <button class="control-btn close" aria-label="关闭" title="关闭">
+          <svg><use xlink:href="./icons/sprites.svg#icon-close"></use></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- 页面 1：克制查询 -->
+    <div id="page-matchup" class="page page-active">
+      <!-- 搜索区域 -->
+      <div class="search-container">
+        <div class="search-row">
+          <div class="search-group">
+            <div class="search-group-label">攻击方</div>
+            <div class="search-box">
+              <svg class="search-icon"><use xlink:href="./icons/sprites.svg#icon-search"></use></svg>
+              <input type="text" id="attackSearch" class="search-input" placeholder="搜索" autocomplete="off" spellcheck="false" />
+              <div id="attackSearchResults" class="search-dropdown"></div>
+            </div>
+            <div id="attackTypeDisplay" class="type-badge-row" tabindex="0" role="button">
+              <span class="type-badge type-badge-empty">点击选择属性</span>
+            </div>
+            <div id="attackPokemonDisplay" class="pokemon-indicator" style="display:none;">
+              <div class="pokemon-indicator-top">
+                <span class="pokemon-indicator-name" id="attackPokemonName"></span>
+                <span id="attackShinyStar" class="shiny-star" title="点击切换闪光">
+                  <svg><use xlink:href="./icons/sprites.svg#icon-star"></use></svg>
+                </span>
+                <button id="clearAttackPokemon" class="clear-indicator-btn">
+                  <svg><use xlink:href="./icons/sprites.svg#icon-close"></use></svg>
+                </button>
+              </div>
+              <img id="attackPokemonImage" class="pokemon-indicator-thumb" alt="" />
+            </div>
+          </div>
+          <div class="search-group">
+            <div class="search-group-label">防守方</div>
+            <div class="search-box">
+              <svg class="search-icon"><use xlink:href="./icons/sprites.svg#icon-search"></use></svg>
+              <input type="text" id="defenseSearch" class="search-input" placeholder="搜索" autocomplete="off" spellcheck="false" />
+              <div id="defenseSearchResults" class="search-dropdown"></div>
+            </div>
+            <div id="defenseTypeDisplay" class="type-badge-row" tabindex="0" role="button">
+              <span class="type-badge type-badge-empty">点击选择属性</span>
+            </div>
+            <div id="defensePokemonDisplay" class="pokemon-indicator" style="display:none;">
+              <div class="pokemon-indicator-top">
+                <span class="pokemon-indicator-name" id="defensePokemonName"></span>
+                <span id="defenseShinyStar" class="shiny-star" title="点击切换闪光">
+                  <svg><use xlink:href="./icons/sprites.svg#icon-star"></use></svg>
+                </span>
+                <button id="clearDefensePokemon" class="clear-indicator-btn">
+                  <svg><use xlink:href="./icons/sprites.svg#icon-close"></use></svg>
+                </button>
+              </div>
+              <img id="defensePokemonImage" class="pokemon-indicator-thumb" alt="" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 内容区 -->
+      <div class="content-area">
+        <div class="result-panel" id="resultPanel">
+          <div class="result-display" id="resultDisplay">
+            <span class="type-pill">?</span>
+            <span class="result-arrow">→</span>
+            <span class="type-pill">?</span>
+            <span class="result-eq">=</span>
+            <span class="result-mult">?</span>
+          </div>
+          <div class="result-hint" id="resultHint"></div>
+        </div>
+        <div class="action-bar">
+          <button class="action-btn" id="clearBtn">清除</button>
+          <button class="action-btn" id="swapBtn">攻防交换</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 页面 2：属性克制表 -->
+    <div id="page-typechart" class="page">
+      <div class="content-area type-chart-area">
+        <div id="typeChartContainer" class="type-chart-scroll"></div>
+      </div>
+    </div>
+
+    <!-- 页面 3：按属性查宝可梦 -->
+    <div id="page-typesearch" class="page">
+      <div class="content-area" style="padding:6px 8px 0;">
+        <div style="flex-shrink:0;">
+          <div class="search-group-label">属性筛选</div>
+          <div id="tsTypeBadge" class="type-badge-row" tabindex="0" role="button">
+            <span class="type-badge type-badge-empty">点击选择属性</span>
+          </div>
+        </div>
+        <div id="tsSearchResults" style="flex:1;min-height:0;padding-bottom:12px;"></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
