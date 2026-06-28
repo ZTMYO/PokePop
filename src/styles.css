@@ -168,6 +168,17 @@ body { margin: 0; padding: 0; cursor: default; }
 .pokemon-indicator-top .shiny-star.show { display: inline-flex; }
 .pokemon-indicator-top .clear-indicator-btn { margin-left: auto; }
 
+/* badge 行上的清除按钮 */
+.type-badge-row { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.badge-clear-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 14px; height: 14px; border: none; background: transparent;
+  cursor: pointer; color: var(--color-muted); padding: 0; flex-shrink: 0; line-height: 0;
+  margin-left: auto;
+}
+.badge-clear-btn svg { width: 10px; height: 10px; }
+.badge-clear-btn:hover { color: var(--color-text); }
+
 .pokemon-indicator-name {
   font-size: 11px; font-weight: 600; color: var(--color-text);
   white-space: nowrap;
@@ -288,6 +299,7 @@ body { margin: 0; padding: 0; cursor: default; }
 }
 
 .type-picker-btn {
+  position: relative;
   padding: 5px 0; border-radius: 3px;
   border: 2px solid transparent;
   font-size: 10px; font-weight: 600; color: #fff;
@@ -298,6 +310,9 @@ body { margin: 0; padding: 0; cursor: default; }
 .type-picker-btn.selected { border-color: var(--color-text); box-shadow: 0 0 0 1px var(--color-text); }
 .type-picker-btn.selected1 { border-color: #fff; box-shadow: 0 0 0 1px var(--color-text); }
 .type-picker-btn.selected2 { border-color: #fff; box-shadow: 0 0 0 1px var(--color-text), inset 0 0 0 1px rgba(0,0,0,0.3); }
+.type-picker-btn .picker-arrow { margin-left: 2px; display: inline-flex; align-items: center; }
+.arrow-up .arrow-icon { width: 10px; height: 10px; fill: #fff; margin-top: 1px; }
+.arrow-down .arrow-icon { width: 10px; height: 10px; fill: #fff; transform: rotate(180deg); margin-bottom: 1px; }
 
 .type-picker-hint {
   text-align: center; font-size: 10px; color: var(--color-muted);

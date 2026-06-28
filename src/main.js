@@ -255,14 +255,24 @@ function updateTypeBadges() {
 }
 
 function renderTypeBadge(container, t1, t2) {
+  const clearBtn = container.querySelector('.badge-clear-btn');
   if (!t1 && !t2) {
     container.innerHTML = '<span class="type-badge type-badge-empty">点击选择属性</span>';
-    return;
+    // 重新追加清除按钮
+    const cb = document.createElement('button');
+    cb.className = 'badge-clear-btn';
+    cb.setAttribute('aria-label', '清除');
+    cb.setAttribute('title', '清除');
+    cb.innerHTML = '<svg><use xlink:href="./icons/sprites.svg#icon-close"></use></svg>';
+    cb.style.display = 'none';
+    container.appendChild(cb);
+  } else {
+    const parts = [];
+    if (t1) parts.push(`<span class="type-badge" style="background:${typeColors[t1]}">${t1}</span>`);
+    if (t2) parts.push(`<span class="type-badge" style="background:${typeColors[t2]}">${t2}</span>`);
+    parts.push(`<button class="badge-clear-btn" aria-label="清除" title="清除" style="display:inline-flex"><svg><use xlink:href="./icons/sprites.svg#icon-close"></use></svg></button>`);
+    container.innerHTML = parts.join('');
   }
-  const parts = [];
-  if (t1) parts.push(`<span class="type-badge" style="background:${typeColors[t1]}">${t1}</span>`);
-  if (t2) parts.push(`<span class="type-badge" style="background:${typeColors[t2]}">${t2}</span>`);
-  container.innerHTML = parts.join('');
 }
 
 // ==================== 属性选择器模态框 ====================
@@ -288,13 +298,46 @@ function openTypePicker(side) {
 }
 
 function renderPickerButtons() {
+  // 计算箭头标注
+  const arrows = {};
+  typeNamesZh.forEach(t => { arrows[t] = ''; });
+
+  if (pickerSide === 'defense' && (selectedAttack1 || selectedAttack2)) {
+    // 攻击方有 AB 双属性，只看防守方能防住几个
+    typeNamesZh.forEach(t => {
+      const a1 = selectedAttack1, a2 = selectedAttack2;
+      if (!a1) { arrows[t] = ''; return; }
+      const m1 = typeChart[a1]?.[t];
+      if (m1 == null) { arrows[t] = ''; return; }
+      const m2 = a2 ? (typeChart[a2]?.[t] ?? 1) : 1;
+      // 任一攻击属性 > 1x → 防不住；都 < 1x → 防住了
+      const hasStrong = m1 > 1 || m2 > 1;
+      const allWeak = m1 < 1 && (a2 ? m2 < 1 : true);
+      arrows[t] = hasStrong ? '↓' : allWeak ? '↑' : '';
+    });
+  } else if (pickerSide === 'attack' && (selectedDefense1 || selectedDefense2)) {
+    typeNamesZh.forEach(t => {
+      const d1 = selectedDefense1, d2 = selectedDefense2;
+      if (!d1) { arrows[t] = ''; return; }
+      const m1 = typeChart[t]?.[d1];
+      if (m1 == null) { arrows[t] = ''; return; }
+      let m = m1;
+      if (d2) {
+        const m2 = typeChart[t]?.[d2];
+        if (m2 != null) m = (m1 === 0 || m2 === 0) ? 0 : m1 * m2;
+      }
+      arrows[t] = m > 1 ? '↑' : m < 1 ? '↓' : '';
+    });
+  }
+
   typePickerGrid.innerHTML = typeNamesZh.map(t => {
     const is1 = pickerTemp1 === t;
     const is2 = pickerTemp2 === t;
     let cls = 'type-picker-btn';
     if (is1) cls += ' selected1';
     if (is2) cls += ' selected2';
-    return `<button class="${cls}" style="background:${typeColors[t]}" data-type="${t}">${t}</button>`;
+    const arrow = arrows[t] ? `<span class="picker-arrow ${arrows[t] === '↑' ? 'arrow-up' : 'arrow-down'}"><svg class="arrow-icon"><use xlink:href="./icons/sprites.svg#icon-arrow-up"></use></svg></span>` : '';
+    return `<button class="${cls}" style="background:${typeColors[t]}" data-type="${t}">${t}${arrow}</button>`;
   }).join('');
 
   // 点击按钮选择
@@ -723,8 +766,24 @@ async function setupEvents() {
   clearDefenseBtn.addEventListener('click', clearDefensePokemon);
 
   // 属性标签点击打开选择器
-  attackTypeDisplay.addEventListener('click', () => openTypePicker('attack'));
-  defenseTypeDisplay.addEventListener('click', () => openTypePicker('defense'));
+  attackTypeDisplay.addEventListener('click', (e) => {
+    if (e.target.closest('.badge-clear-btn')) {
+      selectedAttack1 = null; selectedAttack2 = null;
+      currentAttackPokemon = null; attackPokemonDisplay.style.display = 'none'; attackShiny = false;
+      updateTypeBadges(); updateResultDisplay();
+      return;
+    }
+    openTypePicker('attack');
+  });
+  defenseTypeDisplay.addEventListener('click', (e) => {
+    if (e.target.closest('.badge-clear-btn')) {
+      selectedDefense1 = null; selectedDefense2 = null;
+      currentDefensePokemon = null; defensePokemonDisplay.style.display = 'none'; defenseShiny = false;
+      updateTypeBadges(); updateResultDisplay();
+      return;
+    }
+    openTypePicker('defense');
+  });
 
   // 闪光切换（点击图片切换）
   attackPokemonImage.addEventListener('click', toggleAttackShiny);
@@ -741,7 +800,15 @@ async function setupEvents() {
   swapBtn.addEventListener('click', swapSelection);
 
   // === 属性查宝可梦页面（复用 typePickerModal） ===
-  document.getElementById('tsTypeBadge').addEventListener('click', () => openTypePicker('ts'));
+  document.getElementById('tsTypeBadge').addEventListener('click', (e) => {
+    if (e.target.closest('.badge-clear-btn')) {
+      tsType1 = null; tsType2 = null;
+      renderTypeBadge(document.getElementById('tsTypeBadge'), null, null);
+      filterByTypePage();
+      return;
+    }
+    openTypePicker('ts');
+  });
 
   document.getElementById('tsSearchResults').addEventListener('click', (e) => {
     const item = e.target.closest('.type-search-item');
