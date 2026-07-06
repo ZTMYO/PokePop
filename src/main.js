@@ -508,13 +508,13 @@ function setupSearchKeyboard(input, results, selectFn) {
     if (e.key === 'ArrowDown') {
       e.preventDefault();
       idx = idx < items.length - 1 ? idx + 1 : 0;
-      items.forEach((it, i) => it.style.background = i === idx ? 'var(--bg-active)' : '');
+      items.forEach((it, i) => it.classList.toggle('highlight', i === idx));
       items[idx].scrollIntoView({ block: 'nearest' });
       searchNavState[key] = idx;
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
       idx = idx > 0 ? idx - 1 : items.length - 1;
-      items.forEach((it, i) => it.style.background = i === idx ? 'var(--bg-active)' : '');
+      items.forEach((it, i) => it.classList.toggle('highlight', i === idx));
       items[idx].scrollIntoView({ block: 'nearest' });
       searchNavState[key] = idx;
     } else if (e.key === 'Enter' && idx >= 0 && idx < items.length) {
