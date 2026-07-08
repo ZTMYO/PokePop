@@ -354,6 +354,12 @@ body { margin: 0; padding: 0; cursor: default; }
 .page { display: none; flex-direction: column; flex: 1; min-height: 0; }
 .page.page-active { display: flex; }
 
+/* ==================== 设置页面 ==================== */
+.settings-area { padding: 12px; overflow-y: auto; }
+.settings-section { margin-bottom: 16px; }
+.settings-section-title { font-size: 13px; font-weight: 600; color: var(--color-text); margin-bottom: 8px; }
+.settings-hint { font-size: 11px; color: var(--color-muted); }
+
 /* ==================== 属性克制表页面（仿网页版） ==================== */
 .type-chart-area {
   padding: 2px 4px 6px;
@@ -505,4 +511,5 @@ tbody tr:last-child .highlight-col {
 /* ==================== 标题栏按钮激活 ==================== */
 .control-btn.type-chart-toggle.active svg { color: var(--color-text); }
 .control-btn.btn-typesearch.active svg { color: var(--color-text); }
+.control-btn.btn-settings.active svg { color: var(--color-text); }
 .control-btn.window-pin.active svg { color: var(--color-text); }

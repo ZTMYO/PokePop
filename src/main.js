@@ -855,16 +855,20 @@ async function setupEvents() {
   const pageMatchup = document.getElementById('page-matchup');
   const pageTypeChart = document.getElementById('page-typechart');
   const pageTypesearch = document.getElementById('page-typesearch');
+  const pageSettings = document.getElementById('page-settings');
   const btnChart = document.querySelector('.control-btn.type-chart-toggle');
   const btnTypesearch = document.querySelector('.control-btn.btn-typesearch');
+  const btnSettings = document.querySelector('.control-btn.btn-settings');
   let chartRendered = false;
 
   function switchToPage(name) {
     pageMatchup.classList.remove('page-active');
     pageTypeChart.classList.remove('page-active');
     if (pageTypesearch) pageTypesearch.classList.remove('page-active');
+    if (pageSettings) pageSettings.classList.remove('page-active');
     btnChart?.classList.remove('active');
     btnTypesearch?.classList.remove('active');
+    if (btnSettings) btnSettings.classList.remove('active');
     if (name === 'matchup') {
       pageMatchup.classList.add('page-active');
     } else if (name === 'typechart') {
@@ -874,6 +878,9 @@ async function setupEvents() {
     } else if (name === 'typesearch') {
       pageTypesearch.classList.add('page-active');
       btnTypesearch?.classList.add('active');
+    } else if (name === 'settings') {
+      pageSettings.classList.add('page-active');
+      btnSettings?.classList.add('active');
     }
   }
 
@@ -885,6 +892,11 @@ async function setupEvents() {
   btnTypesearch?.addEventListener('click', () => {
     const nowSearch = pageTypesearch?.classList.contains('page-active');
     switchToPage(nowSearch ? 'matchup' : 'typesearch');
+  });
+
+  btnSettings?.addEventListener('click', () => {
+    const nowSettings = pageSettings?.classList.contains('page-active');
+    switchToPage(nowSettings ? 'matchup' : 'settings');
   });
 
   // 点击标题返回首页
